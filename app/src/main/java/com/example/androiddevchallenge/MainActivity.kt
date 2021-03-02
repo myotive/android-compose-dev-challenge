@@ -15,24 +15,32 @@
  */
 package com.example.androiddevchallenge
 
-    import android.app.Application
+import android.app.Application
+import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
+import com.example.androiddevchallenge.database.AnimalDatabase
 import com.example.androiddevchallenge.model.Animal
 import com.example.androiddevchallenge.repository.AnimalRepository
 import com.example.androiddevchallenge.ui.composeables.AnimalDetail
@@ -42,6 +50,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+
+const val ANIMAL_PREFERENCES = "ANIMAL_PREFERENCES"
+const val PREF_HAS_LOADED = "PREF_HAS_LOADED"
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,12 +70,32 @@ class MainActivity : AppCompatActivity() {
 @Composable
 fun MyApp(myAppViewModel: MyAppViewModel = viewModel()) {
     val navController = rememberNavController()
-
     val animals by myAppViewModel.animals.observeAsState()
     val coroutineScope = rememberCoroutineScope()
 
+    val context = LocalContext.current
+    val sharedPreferences = context.getSharedPreferences(ANIMAL_PREFERENCES, Context.MODE_PRIVATE)
+
     Surface(color = MaterialTheme.colors.background) {
-        NavHost(navController, startDestination = "animal-list") {
+        NavHost(navController, startDestination = "loading") {
+
+            composable("loading") {
+                LoadingScreen()
+                    .also {
+                        coroutineScope.launch {
+                            withContext(Dispatchers.IO) {
+                                if (!sharedPreferences.getBoolean(PREF_HAS_LOADED, false)) {
+                                    AnimalDatabase.getDatabase(context).seedDatabaseWithData()
+                                    sharedPreferences.edit().putBoolean(PREF_HAS_LOADED, true)
+                                        .apply()
+                                }
+                            }
+
+                            navController.navigate(route = "animal-list")
+                        }
+                    }
+            }
+
             composable("animal-list") {
 
                 coroutineScope.launch {
@@ -99,6 +130,21 @@ fun MyApp(myAppViewModel: MyAppViewModel = viewModel()) {
     }
 }
 
+@Composable
+fun LoadingScreen() =
+    Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceEvenly, horizontalAlignment = Alignment.CenterHorizontally) {
+
+        CircularProgressIndicator(
+            color = colorResource(id = R.color.primaryColor)
+        )
+
+        Text(
+            modifier = Modifier.padding(20.dp),
+            text = "Loading animal database...",
+            style = MaterialTheme.typography.h6
+        )
+    }
+
 
 class MyAppViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -108,11 +154,11 @@ class MyAppViewModel(application: Application) : AndroidViewModel(application) {
     val animals: LiveData<List<Animal>> = _animals
 
     suspend fun getAnimals() = withContext(Dispatchers.IO) {
-            val animals = animalRepository.getAnimals()
-            withContext(Dispatchers.Main) {
-                _animals.value = animals
-            }
+        val animals = animalRepository.getAnimals()
+        withContext(Dispatchers.Main) {
+            _animals.value = animals
         }
+    }
 }
 
 @Preview("Light Theme", widthDp = 360, heightDp = 640)
