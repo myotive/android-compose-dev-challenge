@@ -21,16 +21,20 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,7 +43,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.*
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.navArgument
+import androidx.navigation.compose.navigate
+import androidx.navigation.compose.rememberNavController
 import com.example.androiddevchallenge.database.AnimalDatabase
 import com.example.androiddevchallenge.model.Animal
 import com.example.androiddevchallenge.repository.AnimalRepository
@@ -49,7 +57,6 @@ import com.example.androiddevchallenge.ui.theme.MyTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
 
 const val ANIMAL_PREFERENCES = "ANIMAL_PREFERENCES"
 const val PREF_HAS_LOADED = "PREF_HAS_LOADED"
@@ -139,12 +146,12 @@ fun LoadingScreen() =
         )
 
         Text(
-            modifier = Modifier.padding(20.dp),
+            modifier = Modifier
+                .padding(20.dp),
             text = "Loading animal database...",
             style = MaterialTheme.typography.h6
         )
     }
-
 
 class MyAppViewModel(application: Application) : AndroidViewModel(application) {
 
