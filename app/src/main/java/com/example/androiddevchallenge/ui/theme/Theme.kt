@@ -20,26 +20,53 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import com.example.androiddevchallenge.R
 
 private val DarkColorPalette = darkColors(
-    primary = purple200,
-    primaryVariant = purple700,
-    secondary = teal200
+    primary = primaryRed700,
+    primaryVariant = primaryRedVariant,
+    secondary = secondaryPink600,
+    onPrimary = primaryRed700
 )
 
 private val LightColorPalette = lightColors(
-    primary = purple500,
-    primaryVariant = purple700,
-    secondary = teal200
+    primary = primaryRed700,
+    primaryVariant = primaryRedVariant,
+    secondary = secondaryPink600,
+    onPrimary = primaryRed700
 
-        /* Other default colors to override
-    background = Color.White,
-    surface = Color.White,
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onBackground = Color.Black,
-    onSurface = Color.Black,
-    */
+    /* Other default colors to override
+background = Color.White,
+surface = Color.White,
+onPrimary = Color.White,
+onSecondary = Color.Black,
+onBackground = Color.Black,
+onSurface = Color.Black,
+*/
+)
+
+private val fontFamily = FontFamily(
+    Font(R.font.notosans_regular),
+    Font(R.font.notosans_italic, style = FontStyle.Italic),
+    Font(R.font.notosans_bold, FontWeight.Bold),
+)
+
+private val appTypography = androidx.compose.material.Typography(
+    defaultFontFamily = fontFamily,
+    subtitle1 = TextStyle(
+        fontWeight = FontWeight.Bold,
+        fontSize = 20.sp
+    ),
+    subtitle2 = TextStyle(
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp
+    ),
 )
 
 @Composable
@@ -52,7 +79,7 @@ fun MyTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() (
 
     MaterialTheme(
         colors = colors,
-        typography = typography,
+        typography = appTypography,
         shapes = shapes,
         content = content
     )
